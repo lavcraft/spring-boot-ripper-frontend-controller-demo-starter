@@ -19,9 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringJUnitConfig
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = RANDOM_PORT,
-        classes = SuperControllerTest.TestFrontendControllerConfiguraiton.class
+        classes = FrontendControllerTest.TestFrontendControllerConfiguraiton.class
 )
-public class SuperControllerTest {
+public class FrontendControllerTest {
     //for webflux
     //@Autowired WebTestClient webTestClient;
 
