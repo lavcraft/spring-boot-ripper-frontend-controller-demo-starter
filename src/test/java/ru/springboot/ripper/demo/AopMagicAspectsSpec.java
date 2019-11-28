@@ -8,28 +8,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguration.ImportantLegacyService;
-import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguration.ImportantService;
-import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguration.LegacyService;
+import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguraiton.ImportantLegacyService;
+import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguraiton.ImportantService;
+import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguraiton.LegacyService;
+import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguraiton.ThrowingLegacyService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 @SpringJUnitConfig
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = NONE,
-        classes = AopMagicAspectsSpec.TestAopConfiguration.class
+        classes = AopMagicAspectsSpec.TestAopConfiguraiton.class
 )
 public class AopMagicAspectsSpec {
     @Autowired ImportantService       importantService;
     @Autowired LegacyService          legacyService;
     @Autowired ImportantLegacyService importantLegacyService;
+    @Autowired ThrowingLegacyService  throwingLegacyService;
+    @MockBean  NotificationlService   notificationlService;
 
     @Test
     @DisplayName("Should print time when invoke method with @Benchmark annotation")
@@ -73,8 +79,26 @@ public class AopMagicAspectsSpec {
         );
     }
 
+    @Test
+    @DisplayName("Should send notification via notification service when sth went wrong")
+    void should_send_notification_when_sth_went_wrong() {
+        //when
+        try {
+            throwingLegacyService.veryUnstableLegacyMethod();
+            throwingLegacyService.veryStableLegacyMethod();
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
+
+        //then
+        assertAll(
+                () -> verify(notificationlService, times(1)).sendEmail()
+        );
+    }
+
+
     @SpringBootApplication
-    public static class TestAopConfiguration {
+    public static class TestAopConfiguraiton {
         @Service
         public static class ImportantService {
             @Benchmark
@@ -98,6 +122,16 @@ public class AopMagicAspectsSpec {
             @Benchmark
             public void veryImportantLegacyMethod() {
                 System.out.println("Call - important legacy method");
+            }
+        }
+
+        @Service
+        public static class ThrowingLegacyService {
+            public void veryUnstableLegacyMethod() throws DbException {
+                throw new DbException();
+            }
+            public void veryStableLegacyMethod() throws DbException {
+                throw new RuntimeException();
             }
         }
     }
