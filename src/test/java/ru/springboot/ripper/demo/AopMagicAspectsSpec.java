@@ -10,9 +10,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguraiton.ImportantLegacyService;
-import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguraiton.ImportantService;
-import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguraiton.LegacyService;
+import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguration.ImportantLegacyService;
+import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguration.ImportantService;
+import ru.springboot.ripper.demo.AopMagicAspectsSpec.TestAopConfiguration.LegacyService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -24,7 +24,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringJUnitConfig
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = NONE,
-        classes = AopMagicAspectsSpec.TestAopConfiguraiton.class
+        classes = AopMagicAspectsSpec.TestAopConfiguration.class
 )
 public class AopMagicAspectsSpec {
     @Autowired ImportantService       importantService;
@@ -74,7 +74,7 @@ public class AopMagicAspectsSpec {
     }
 
     @SpringBootApplication
-    public static class TestAopConfiguraiton {
+    public static class TestAopConfiguration {
         @Service
         public static class ImportantService {
             @Benchmark
